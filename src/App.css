@@ -1,5 +1,53 @@
-.App {
-  text-align: center;
+
+
+.page {
+ margin: auto;
+ /* background-color: #282c34; */
+}
+
+header {
+  font-size: 28px;
+  font-weight: bold;
+  color: #FFFFFF;
+}
+
+p {
+  font-size: 18px;
+  font-weight: 600;
+  color: #FFFFFF;
+}
+
+.desc {
+  margin: 0 auto;
+  width: 100%;
+  max-width: 700px;
+  padding: 40px 0 0 0;
+  box-sizing: border-box;
+}
+
+.sketch {
+  margin: 0 auto;
+  width: 100%;
+  max-width: 700px;
+  padding: 40px 0 0 0;
+  box-sizing: border-box;
+
+  height: 450px;
+}
+
+.sketch canvas {
+  height: inherit !important;
+  width: inherit !important;
+  /* width: 100% !important; */
+  /* max-width: 700px !important; */
+}
+
+.middle {
+
+
+  /* display: flex; */
+  /* flex: 1 1 100%; */
+  /* justify-content: center; */
 }
 
 .App-logo {
@@ -14,7 +62,7 @@
 }
 
 .App-header {
-  background-color: #282c34;
+  /* background-color: #282c34; */
   min-height: 100vh;
   display: flex;
   flex-direction: column;
