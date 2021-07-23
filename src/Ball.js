@@ -79,213 +79,60 @@ export default class Ball {
     collideWall(p5, params) {
         let collided = 0;
         let vP = p5.createVector(-1, -1, -1);
-        let wP = p5.createVector(-1, -1, -1); 
-        
-        if (this.pos.y >= params.hei / 2 - params.thick - this.r) {
-            let collideAngle = Math.atan2(this.vel.x, this.vel.z);
+        let wP = p5.createVector(-1, -1, -1);
+
+        let a = params.a
+        let e = params.e
+        let len = params.len 
+        let thick = params.thick
+        let hei = params.hei 
+        let wid = params.wid
+
+        let dirs = ['x', 'y', 'z']
+
+        for (let i = 0; i < 6; i++) {
+            if (((i === 0 && this.pos.x >= wid / 2 - thick - this.r) || (i === 1 && this.pos.x <= -(wid / 2 - thick - this.r)) ||
+                (i === 2 && this.pos.y >= hei / 2 - thick - this.r) || (i === 3 && this.pos.y <= -(hei / 2 - thick - this.r)) ||
+                (i === 4 && this.pos.z >= len / 2 - thick - this.r) || (i === 5 && this.pos.z <= -(len / 2 - thick - this.r)))) {
                 
-            wP.x = Math.cos(collideAngle) * this.w.x - Math.sin(collideAngle) * this.w.z;
-            wP.y = this.w.y;
-            wP.z = Math.sin(collideAngle) * this.w.x + Math.cos(collideAngle) * this.w.z;
-    
-            vP.x = Math.cos(collideAngle) * this.vel.x - Math.sin(collideAngle) * this.vel.z;
-            vP.y = this.vel.y;
-            vP.z = Math.sin(collideAngle) * this.vel.x + Math.cos(collideAngle) * this.vel.z;
-            
-            vP.x = (1 - a * e) / (1 + a) * vP.x + a * (1 + e) / (1 + a) * (this.r * wP.z);
-            vP.z = (1 - a * e) / (1 + a) * vP.z + a * (1 + e) / (1 + a) * (-this.r * wP.x);
-            vP.y = -e * vP.y;
+                let face = i % 2 === 0 ? 1 : -1;
+                let dir = parseInt(i / 2);
 
-            wP.x = (a - e) / (1 + a) * wP.x + (1 + e) / (1 + a) * (vP.z) / (-this.r);
-            wP.z = (a - e) / (1 + a) * wP.z + (1 + e) / (1 + a) * (vP.x) / (this.r);
-            
-            this.w.x = Math.cos(collideAngle) * wP.x + Math.sin(collideAngle) * wP.z;
-            this.w.y = wP.y;
-            this.w.z = -Math.sin(collideAngle) * wP.x + Math.cos(collideAngle) * wP.z;
+                let prev = dirs[(dir + 2) % 3]
+                let curr = dirs[dir]
+                let next = dirs[(dir + 1) % 3]
     
-            this.vel.x = Math.cos(collideAngle) * vP.x + Math.sin(collideAngle) * vP.z;
-            this.vel.y = vP.y;
-            this.vel.z = -Math.sin(collideAngle) * vP.x + Math.cos(collideAngle) * vP.z;
+                let collideAngle = Math.atan2(this.vel.[prev], this.vel.[next]);
+                
+                wP.[prev] = Math.cos(collideAngle) * this.w.[prev] - Math.sin(collideAngle) * this.w.[next];
+                wP.[curr] = this.w.[curr];
+                wP.[next] = Math.sin(collideAngle) * this.w.[prev] + Math.cos(collideAngle) * this.w.[next];
     
-            this.pos.y = hei / 2 - thick - this.r;
-            
-            if(this.alive){
+                vP.[prev] = Math.cos(collideAngle) * this.vel.[prev] - Math.sin(collideAngle) * this.vel.[next];
+                vP.[curr] = this.vel.[curr];
+                vP.[next] = Math.sin(collideAngle) * this.vel.[prev] + Math.cos(collideAngle) * this.vel.[next];
+    
+                vP.[prev] = (1 - a * e) / (1 + a) * vP.[prev] + a * (1 + e) / (1 + a) * (face * this.r * wP.[next]);
+                vP.[next] = (1 - a * e) / (1 + a) * vP.[next] + a * (1 + e) / (1 + a) * (-1 * face * this.r * wP.[prev]);
+                vP.[curr] = -e * vP.[curr];
+    
+                wP.[prev] = (a - e) / (1 + a) * wP.[prev] + (1 + e) / (1 + a) * (vP.[next]) / (-1 * face * this.r);
+                wP.[next] = (a - e) / (1 + a) * wP.[next] + (1 + e) / (1 + a) * (vP.[prev]) / (face * this.r);
+    
+                this.w.[prev] = Math.cos(collideAngle) * wP.[prev] + Math.sin(collideAngle) * wP.[next];
+                this.w.[curr] = wP.[curr];
+                this.w.[next] = -Math.sin(collideAngle) * wP.[prev] + Math.cos(collideAngle) * wP.[next];
+        
+                this.vel.[prev] = Math.cos(collideAngle) * vP.[prev] + Math.sin(collideAngle) * vP.[next];
+                this.vel.[curr] = vP.[curr];
+                this.vel.[next] = -Math.sin(collideAngle) * vP.[prev] + Math.cos(collideAngle) * vP.[next];
+        
+                this.pos.[curr] = face * (((i === 0 || i === 1) ? wid : ((i === 2 || i === 3) ? hei : len)) / 2 - thick - this.r);
+                
                 this.alive = 0;
-            }   
-            
-            collided = 1;
-        }
-      
-        if (this.pos.y <= -(hei / 2 - thick - this.r)) {
-            let collideAngle = Math.atan2(this.vel.x, this.vel.z);
-            
-            wP.x = Math.cos(collideAngle) * this.w.x - Math.sin(collideAngle) * this.w.z;
-            wP.y = this.w.y;
-            wP.z = Math.sin(collideAngle) * this.w.x + Math.cos(collideAngle) * this.w.z;
-    
-            vP.x = Math.cos(collideAngle) * this.vel.x - Math.sin(collideAngle) * this.vel.z;
-            vP.y = this.vel.y;
-            vP.z = Math.sin(collideAngle) * this.vel.x + Math.cos(collideAngle) * this.vel.z;
-            
-            vP.x = ((1 - a * e) / (1 + a) * vP.x + a * (1 + e) / (1 + a) * (- this.r * wP.z));
-            vP.z = ((1 - a * e) / (1 + a) * vP.z + a * (1 + e) / (1 + a) * (this.r * wP.x));
-            vP.y = -e * vP.y;
-            wP.x = ((a - e) / (1 + a) * wP.x + (1 + e) / (1 + a) * (vP.z) / (this.r));
-            wP.z = ((a - e) / (1 + a) * wP.z + (1 + e) / (1 + a) * (vP.x) / (- this.r));
-            
-            this.w.x = Math.cos(collideAngle) * wP.x + Math.sin(collideAngle) * wP.z;
-            this.w.y = wP.y;
-            this.w.z = -Math.sin(collideAngle) * wP.x + Math.cos(collideAngle) * wP.z;
-    
-            this.vel.x = Math.cos(collideAngle) * vP.x + Math.sin(collideAngle) * vP.z;
-            this.vel.y = vP.y;
-            this.vel.z = -Math.sin(collideAngle) * vP.x + Math.cos(collideAngle) * vP.z;
-            
-            this.pos.y = - hei / 2 + thick + this.r;
-            
-            if(this.alive){
-            this.alive = 0;
+                collided = 1;
             }
-            
-            collided = 1;
         }
-        
-        if (this.pos.x >= wid / 2 - thick - this.r) {
-            let collideAngle = Math.atan2(this.vel.z, this.vel.y);
-            
-            wP.z = Math.cos(collideAngle) * this.w.z - Math.sin(collideAngle) * this.w.y;
-            wP.x = this.w.x;
-            wP.y = Math.sin(collideAngle) * this.w.z + Math.cos(collideAngle) * this.w.y;
-
-            vP.z = Math.cos(collideAngle) * this.vel.z - Math.sin(collideAngle) * this.vel.y;
-            vP.x = this.vel.x;
-            vP.y = Math.sin(collideAngle) * this.vel.z + Math.cos(collideAngle) * this.vel.y;
-            
-            vP.z = ((1 - a * e) / (1 + a) * vP.z + a * (1 + e) / (1 + a) * (this.r * wP.y));
-            vP.y = ((1 - a * e) / (1 + a) * vP.y + a * (1 + e) / (1 + a) * (- this.r * wP.z));
-            vP.x = -e * vP.x;
-            wP.z = ((a - e) / (1 + a) * wP.z + (1 + e) / (1 + a) * (vP.y) / (- this.r));
-            wP.y = ((a - e) / (1 + a) * wP.y + (1 + e) / (1 + a) * (vP.z) / (this.r));
-            
-            this.w.z = Math.cos(collideAngle) * wP.z + Math.sin(collideAngle) * wP.y;
-            this.w.x = wP.x;
-            this.w.y = -Math.sin(collideAngle) * wP.z + Math.cos(collideAngle) * wP.y;
-
-            this.vel.z = Math.cos(collideAngle) * vP.z + Math.sin(collideAngle) * vP.y;
-            this.vel.x = vP.x;
-            this.vel.y = -Math.sin(collideAngle) * vP.z + Math.cos(collideAngle) * vP.y;
-            
-            this.pos.x = wid / 2 - thick - this.r;
-            
-            if(this.alive){
-            this.alive = 0;
-            }
-            
-            collided = 1;
-        }
-    
-        if (this.pos.x <= -(wid / 2 - thick - this.r)) {
-            let collideAngle = Math.atan2(this.vel.z, this.vel.y);
-            
-            wP.z = Math.cos(collideAngle) * this.w.z - Math.sin(collideAngle) * this.w.y;
-            wP.x = this.w.x;
-            wP.y = Math.sin(collideAngle) * this.w.z + Math.cos(collideAngle) * this.w.y;
-
-            vP.z = Math.cos(collideAngle) * this.vel.z - Math.sin(collideAngle) * this.vel.y;
-            vP.x = this.vel.x;
-            vP.y = Math.sin(collideAngle) * this.vel.z + Math.cos(collideAngle) * this.vel.y;
-            
-            vP.z = ((1 - a * e) / (1 + a) * vP.z + a * (1 + e) / (1 + a) * (-this.r * wP.y));
-            vP.y = ((1 - a * e) / (1 + a) * vP.y + a * (1 + e) / (1 + a) * (this.r * wP.z));
-            vP.x = -e * vP.x;
-            wP.z = ((a - e) / (1 + a) * wP.z + (1 + e) / (1 + a) * (vP.y) / (this.r));
-            wP.y = ((a - e) / (1 + a) * wP.y + (1 + e) / (1 + a) * (vP.z) / (-this.r));
-            
-            this.w.z = Math.cos(collideAngle) * wP.z + Math.sin(collideAngle) * wP.y;
-            this.w.x = wP.x;
-            this.w.y = -Math.sin(collideAngle) * wP.z + Math.cos(collideAngle) * wP.y;
-
-            this.vel.z = Math.cos(collideAngle) * vP.z + Math.sin(collideAngle) * vP.y;
-            this.vel.x = vP.x;
-            this.vel.y = -Math.sin(collideAngle) * vP.z + Math.cos(collideAngle) * vP.y;
-            
-            this.pos.x = - wid / 2 + thick + this.r;
-            
-            if(this.alive){
-            this.alive = 0;
-            }
-            
-            collided = 1;
-        }
-        
-        if (this.pos.z >= len / 2 - thick - this.r) {
-            let collideAngle = Math.atan2(this.vel.y, this.vel.x);
-            
-            wP.y = Math.cos(collideAngle) * this.w.y - Math.sin(collideAngle) * this.w.x;
-            wP.z = this.w.z;
-            wP.x = Math.sin(collideAngle) * this.w.y + Math.cos(collideAngle) * this.w.x;
-
-            vP.y = Math.cos(collideAngle) * this.vel.y - Math.sin(collideAngle) * this.vel.x;
-            vP.z = this.vel.z;
-            vP.x = Math.sin(collideAngle) * this.vel.y + Math.cos(collideAngle) * this.vel.x;
-            
-            vP.y = ((1 - a * e) / (1 + a) * vP.y + a * (1 + e) / (1 + a) * (this.r * wP.x));
-            vP.x = ((1 - a * e) / (1 + a) * vP.x + a * (1 + e) / (1 + a) * (- this.r * wP.y));
-            vP.z = -e * vP.z;
-            wP.y = ((a - e) / (1 + a) * wP.y + (1 + e) / (1 + a) * (vP.x) / (- this.r));
-            wP.x = ((a - e) / (1 + a) * wP.x + (1 + e) / (1 + a) * (vP.y) / (this.r));
-            
-            this.w.y = Math.cos(collideAngle) * wP.y + Math.sin(collideAngle) * wP.x;
-            this.w.z = wP.z;
-            this.w.x = -Math.sin(collideAngle) * wP.y + Math.cos(collideAngle) * wP.x;
-
-            this.vel.y = Math.cos(collideAngle) * vP.y + Math.sin(collideAngle) * vP.x;
-            this.vel.z = vP.z;
-            this.vel.x = -Math.sin(collideAngle) * vP.y + Math.cos(collideAngle) * vP.x;
-            
-            this.pos.z = len / 2 - thick - this.r;
-            
-            if(this.alive){
-            this.alive = 0;
-            }
-            
-            collided = 1;
-        }
-    
-        if (this.pos.z <= -(len / 2 - thick - this.r)) {
-            let collideAngle = Math.atan2(this.vel.y, this.vel.x);
-            
-            wP.y = Math.cos(collideAngle) * this.w.y - Math.sin(collideAngle) * this.w.x;
-            wP.z = this.w.z;
-            wP.x = Math.sin(collideAngle) * this.w.y + Math.cos(collideAngle) * this.w.x;
-    
-            vP.y = Math.cos(collideAngle) * this.vel.y - Math.sin(collideAngle) * this.vel.x;
-            vP.z = this.vel.z;
-            vP.x = Math.sin(collideAngle) * this.vel.y + Math.cos(collideAngle) * this.vel.x;
-            
-            vP.y = ((1 - a * e) / (1 + a) * vP.y + a * (1 + e) / (1 + a) * (-this.r * wP.x));
-            vP.x = ((1 - a * e) / (1 + a) * vP.x + a * (1 + e) / (1 + a) * (this.r * wP.y));
-            vP.z = -e * vP.z;
-            wP.y = ((a - e) / (1 + a) * wP.y + (1 + e) / (1 + a) * (vP.x) / (this.r));
-            wP.x = ((a - e) / (1 + a) * wP.x + (1 + e) / (1 + a) * (vP.y) / (-this.r));
-            
-            this.w.y = Math.cos(collideAngle) * wP.y + Math.sin(collideAngle) * wP.x;
-            this.w.z = wP.z;
-            this.w.x = -Math.sin(collideAngle) * wP.y + Math.cos(collideAngle) * wP.x;
-
-            this.vel.y = Math.cos(collideAngle) * vP.y + Math.sin(collideAngle) * vP.x;
-            this.vel.z = vP.z;
-            this.vel.x = -Math.sin(collideAngle) * vP.y + Math.cos(collideAngle) * vP.x;
-            
-            this.pos.z = -len / 2 + thick + this.r;
-            
-            if(this.alive){
-            this.alive = 0;
-            }
-            
-            collided = 1;
-        }
-        
         
         if(this.caughtByTeam == -1 && collided){
             for(let i = -1; i < bots.length ; i++){

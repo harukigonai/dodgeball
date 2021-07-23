@@ -150,7 +150,7 @@ export default class Bot {
     }
     //could the logic for the player be more smooth like this above?
     
-    ballInHand(p5, balls, botNum, bots, playerAlive, cam, collidedBalls){
+    ballInHand(p5, balls, botNum, bots, playerAlive, cam, collidedBalls, hei, thick, a, e, wid, len, ballGrabbed, grabbedBall){
       
       this.canThrowBall = 1;
       
@@ -230,7 +230,19 @@ export default class Bot {
   
         balls[this.ballNumGrabbed].w.mult(0);
     
-        balls[this.ballNumGrabbed].collideWall(p5);
+        balls[this.ballNumGrabbed].collideWall(p5, {
+            hei: hei, 
+            thick: thick, 
+            a: a, 
+            e: e, 
+            wid: wid, 
+            len: len, 
+            bots: bots, 
+            playerAlive: playerAlive, 
+            ballGrabbed: ballGrabbed, 
+            balls: balls, 
+            grabbedBall: grabbedBall
+        });
       }
       if(this.target == -1){
         this.canThrowBall = 0;
